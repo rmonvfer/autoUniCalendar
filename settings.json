@@ -1,0 +1,18 @@
+{
+    "version": "0.2",
+    "params": {
+        "CHROMEDRIVER_PATH": "/Users/ramon/bin/chromedriver",
+        "BASE_CALENDAR_URL": "https://sies.uniovi.es/serviciosacademicos/web/expedientes/calendario.xhtml",
+        "LOGIN_URL"        : "https://cassi.uniovi.es/cas/login?service=https%3A%2F%2Fsies.uniovi.es%2Fserviciosacademicos"
+    },
+    "xpaths": {
+        "cookie_consent_dialog"   : "/html/body/div[1]/div/a",
+        "username_input"          : "//*[@id='username']",
+        "password_input"          : "//*[@id='password']",
+        "login_button"            : "//*[@id='login']/div[3]/input[4]",
+        "undergrad_button"        : "/html/body/div[4]/div/form/div/div[2]/div/ul/li[1]/a",
+        "my_studies_button"       : "/html/body/div[4]/div/form/div/div[2]/div/ul/li[1]/ul/li[1]/a",
+        "last_degree_in_selector" : "/html/body/div[4]/div/div/div/div/div/form/div/a[last()]",
+        "my_schedule"             : "/html/body/div[4]/div/form/div/div[2]/div/ul/li[1]/ul/li[6]/a"
+    }
+}
