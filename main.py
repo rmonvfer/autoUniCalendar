@@ -8,8 +8,10 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+from lib.CalendarParser import CalendarParser
 from lib.CalendarExtractor import CalendarExtractor
 import json, getpass
+import pprint as pp
 
 user_settings = {}
 
@@ -23,10 +25,10 @@ def main():
     
     # Instantiate the extractor
     extractor = CalendarExtractor(user_settings, username, password)
-    calendar_data = extractor.get_calendar_data()
+    parser    = CalendarParser(extractor.get_calendar_data())
+    pp.pprint(parser.as_json(), indent=4)
 
-    with open("raw.txt", "w+", encoding="utf-8") as fp:
-        fp.write(calendar_data)
+
     
 if __name__ == "__main__":
     main()

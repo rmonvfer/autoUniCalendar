@@ -31,7 +31,7 @@ class CalendarExtractor:
         self.credentials = { "username": username, "password": password } 
 
         self.options = webdriver.ChromeOptions()
-        #self.options.add_argument("--headless")
+        self.options.add_argument("--headless")
 
         self.driver= webdriver.Chrome(
             executable_path=self.configuration["params"]["CHROMEDRIVER_PATH"],
@@ -68,22 +68,6 @@ class CalendarExtractor:
 
         # Submit the form
         self.__click(self.configuration["xpaths"]["login_button"])
-
-        # Click the undergrad selector
-        self.__click(self.configuration["xpaths"]["undergrad_button"])
-
-        # Click My Studies button
-        self.__click(self.configuration["xpaths"]["my_studies_button"])
-        
-        # Click the LAST STUDY available
-        self.__click(self.configuration["xpaths"]["last_degree_in_selector"])
-
-        # Dismiss the cookie banner
-        self.__click(self.configuration["xpaths"]["cookie_consent_dialog"])
-
-        # Click the schedule button
-        self.__click(self.configuration["xpaths"]["undergrad_button"])
-        self.__click(self.configuration["xpaths"]["my_schedule"])
         
         user_cookies =  { 
             'JSESSIONID': self.driver.get_cookie("JSESSIONID")["value"], 
@@ -91,7 +75,6 @@ class CalendarExtractor:
         }
 
         logger.info("Got user cookies!")
-        logger.info(user_cookies)
         self.driver.close()
 
         return user_cookies
@@ -128,9 +111,6 @@ class CalendarExtractor:
             "javax.faces.viewstate": javax_faces_viewstate["value"]
         }
         logger.info("State parameters extracted")
-        logger.info("source: " + javax_faces_source["id"])
-        logger.info("ViewState: " + javax_faces_viewstate["value"])
-        logger.info("source_SUBMIT: " + javax_faces_source_submit["name"])
         
 
     def __request_calendar_events(self):
@@ -156,7 +136,6 @@ class CalendarExtractor:
             "javax.faces.partial.ajax": "true"
         })
 
-        logger.info("Built payload: " + payload)
         logger.info("Requesting calendar events to SIES server")
 
         r = requests.post(

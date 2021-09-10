@@ -6,3 +6,16 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
+
+import re
+import json
+
+class CalendarParser:
+
+    def __init__(self, raw_partial_response):
+        self.response_raw    = raw_partial_response
+        self.response_json   = re.search(":\s(\[(.|\s)*?\])", self.response_raw).group(1).replace("\n", "").strip()
+        self.response_parsed = json.loads(self.response_json)
+
+    def as_json(self):
+        return self.response_parsed
