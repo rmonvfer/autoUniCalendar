@@ -11,6 +11,7 @@ import requests
 import pprint as pp
 import logging
 from urllib.parse import urlencode
+from typing import *
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -26,21 +27,21 @@ logger = logging.getLogger("CalendarExtractor")
 class CalendarExtractor:
     """ Requests and extracts raw calendar data straight from SIES """
 
-    def __init__(self, configuration, username, password):
+    def __init__(self, configuration: str, username: str, password: str):
         self.configuration = configuration
-        self.credentials = { "username": username, "password": password } 
+        self.credentials: dict[str, str] = { "username": username, "password": password } 
 
         self.options = webdriver.ChromeOptions()
         self.options.add_argument("--headless")
 
         self.driver= webdriver.Chrome(
-            executable_path=self.configuration["params"]["CHROMEDRIVER_PATH"],
+            executable_path=self.configuration["extractor"]["params"]["CHROMEDRIVER_PATH"],
             chrome_options=self.options)
 
         self.wait = WebDriverWait(self.driver, 20)
         self.cookies = self.__extract_user_cookies()
 
-    def __get_element(self, xpath, clickable= False):
+    def __get_element(self, xpath: str, clickable: bool = False) -> Any:
         if clickable:
             # Wait until the element becomes clickable
             return self.wait.until(ec.element_to_be_clickable((By.XPATH, xpath)))
@@ -54,20 +55,20 @@ class CalendarExtractor:
     def __extract_user_cookies(self):
         """ Dumps user cookies using Selenium Chromedriver (headless mode) """
 
-        self.driver.get(self.configuration["params"]["LOGIN_URL"])
+        self.driver.get(self.configuration["extractor"]["params"]["LOGIN_URL"])
 
         # Username
-        username_textarea = self.__get_element(self.configuration["xpaths"]["username_input"])
+        username_textarea = self.__get_element(self.configuration["extractor"]["xpaths"]["username_input"])
         username_textarea.clear()
         username_textarea.send_keys(self.credentials["username"])
 
         # Password
-        password_textarea = self.__get_element(self.configuration["xpaths"]["password_input"])
+        password_textarea = self.__get_element(self.configuration["extractor"]["xpaths"]["password_input"])
         password_textarea.clear()
         password_textarea.send_keys(self.credentials["password"])
 
         # Submit the form
-        self.__click(self.configuration["xpaths"]["login_button"])
+        self.__click(self.configuration["extractor"]["xpaths"]["login_button"])
         
         user_cookies =  { 
             'JSESSIONID': self.driver.get_cookie("JSESSIONID")["value"], 
@@ -80,19 +81,19 @@ class CalendarExtractor:
         return user_cookies
 
     def __get_calendar_source(self):
-        """ Extract calendar's page raw HTML """
+        """ Extracts calendar's page raw HTML """
 
         logger.info("Requesting calendar source using dumped cookies")
 
         # Actually perform the request
-        request = requests.get( self.configuration["params"]["BASE_CALENDAR_URL"], cookies= self.cookies )
+        request = requests.get( self.configuration["extractor"]["params"]["BASE_CALENDAR_URL"], cookies= self.cookies )
         self.calendar_page_source = request.text
 
         logger.info("Calendar HTML succesfully dumped")
 
 
     def __extract_state_parameters(self):
-        """ Parse the dumped raw HTML to extract state parameters """
+        """ Parses dumped raw HTML to extract state parameters """
 
         logger.info("Extracting state parameters")
         page_soup = BeautifulSoup(self.calendar_page_source, "html.parser")
@@ -139,7 +140,7 @@ class CalendarExtractor:
         logger.info("Requesting calendar events to SIES server")
 
         r = requests.post(
-            self.configuration["params"]["BASE_CALENDAR_URL"], 
+            self.configuration["extractor"]["params"]["BASE_CALENDAR_URL"], 
             data= payload,
             headers= { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, 
             cookies= self.cookies

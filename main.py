@@ -12,10 +12,16 @@ from lib.CalendarParser import CalendarParser
 from lib.CalendarExtractor import CalendarExtractor
 import json, getpass
 import pprint as pp
+import logging
+
+logging.basicConfig(format= '%(name)s - %(levelname)s - %(message)s', level= logging.INFO)
+logger = logging.getLogger("CLI")
 
 user_settings = {}
 
 def main():
+    print("uniovical-cli v0.2 - Alpha")
+
     username = str(input("[#] Username > "))
     password = getpass.getpass(prompt="[#] Password > ")
 
@@ -23,12 +29,17 @@ def main():
     with open("settings.json", "r", encoding="utf-8") as settings_file:
         user_settings = json.load(settings_file)
     
-    # Instantiate the extractor
+    logger.info("Extracting calendar information")
+
     extractor = CalendarExtractor(user_settings, username, password)
-    parser    = CalendarParser(extractor.get_calendar_data())
-    pp.pprint(parser.as_json(), indent=4)
+    parser = CalendarParser(user_settings, extractor.get_calendar_data())
 
+    logger.info("Done!. Dumping to csv")
 
+    with open(f"{username}.csv", "w+", encoding="utf-8") as fp:
+        fp.write(parser.as_csv())
+    
+    logger.info(f"Successfully exported {parser.processed_events} events")
     
 if __name__ == "__main__":
     main()
